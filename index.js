@@ -49,10 +49,15 @@ router.get("/", async (ctx) => {
 // });
 
 router.get("/api/test", async (ctx) => {
-  ctx.body = {
-    code: 0,
-    data: "ok1",
-  };
+  axios.get("http://www.lzh0129.top:8081/login").then(res=>{
+    console.log(res)
+    ctx.body = {
+      code: 0,
+      msg: "success"
+    }
+  }).catch(err=>{
+    console.log(err)
+  })
 });
 
 router.post("/api/login", async (ctx) => {
