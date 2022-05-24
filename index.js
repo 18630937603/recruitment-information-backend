@@ -62,13 +62,12 @@ router.post("/api/login", async (ctx) => {
   console.log(code)
   axios.get(`https://api.weixin.qq.com/sns/jscode2session?appid=${AppId}&secret=${AppSecret}&js_code=${code}&grant_type=authorization_code`).then(res=>{
     console.log('成功')
-    console.log(res)
-    // console.log(result.openid)
-    // ctx.body = {
-    //   code: 0,
-    //   data: result.openid,
-    //   msg: `${result.openid}已登录成功！`,
-    // }
+    console.log(res.data)
+    ctx.body = {
+      code: 0,
+      data: res.data.openid,
+      msg: `${res.data.openid}已登录成功！`,
+    }
   }).catch(err=>{
     console.log('错误')
     console.log(err)
