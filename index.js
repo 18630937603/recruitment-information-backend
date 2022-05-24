@@ -21,50 +21,55 @@ router.get("/", async (ctx) => {
 });
 
 // 更新计数
-router.post("/api/count", async (ctx) => {
-  const { request } = ctx;
-  const { action } = request.body;
-  if (action === "inc") {
-    await Counter.create();
-  } else if (action === "clear") {
-    await Counter.destroy({
-      truncate: true,
-    });
-  }
-
-  ctx.body = {
-    code: 0,
-    data: await Counter.count(),
-  };
-});
+// router.post("/api/count", async (ctx) => {
+//   const { request } = ctx;
+//   const { action } = request.body;
+//   if (action === "inc") {
+//     await Counter.create();
+//   } else if (action === "clear") {
+//     await Counter.destroy({
+//       truncate: true,
+//     });
+//   }
+//
+//   ctx.body = {
+//     code: 0,
+//     data: await Counter.count(),
+//   };
+// });
 
 // 获取计数
-router.get("/api/count", async (ctx) => {
-  const result = await Counter.count();
-
-  ctx.body = {
-    code: 0,
-    data: result,
-  };
-});
+// router.get("/api/count", async (ctx) => {
+//   const result = await Counter.count();
+//
+//   ctx.body = {
+//     code: 0,
+//     data: result,
+//   };
+// });
 
 router.post("/api/login", async (ctx) => {
   const { request } = ctx;
   const { code } = request.body;
-  const result = await axios.get(`https://api.weixin.qq.com/sns/jscode2session?appid=${AppId}&secret=${AppSecret}&js_code=${code}&grant_type=authorization_code`)
-  console.log(result.openid)
-  ctx.body = {
-    code: 0,
-    data: `${result.openid}已登录成功！`
+  try {
+    const result = await axios.get(`https://api.weixin.qq.com/sns/jscode2session?appid=${AppId}&secret=${AppSecret}&js_code=${code}&grant_type=authorization_code`)
+    console.log(result.openid)
+    ctx.body = {
+      code: 0,
+      data: result.openid,
+      msg: `${result.openid}已登录成功！`,
+    }
+  } catch (e) {
+    console.log(e)
   }
 })
 
 // 小程序调用，获取微信 Open ID
-router.get("/api/wx_openid", async (ctx) => {
-  if (ctx.request.headers["x-wx-source"]) {
-    ctx.body = ctx.request.headers["x-wx-openid"];
-  }
-});
+// router.get("/api/wx_openid", async (ctx) => {
+//   if (ctx.request.headers["x-wx-source"]) {
+//     ctx.body = ctx.request.headers["x-wx-openid"];
+//   }
+// });
 
 const app = new Koa();
 app
