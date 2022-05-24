@@ -48,6 +48,13 @@ router.get("/", async (ctx) => {
 //   };
 // });
 
+router.get("/api/test", async (ctx) => {
+  ctx.body = {
+    code: 0,
+    data: "ok1",
+  };
+});
+
 router.post("/api/login", async (ctx) => {
   const { request } = ctx;
   const { code } = request.body;
