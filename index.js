@@ -5,10 +5,15 @@ const bodyParser = require("koa-bodyparser");
 const fs = require("fs");
 const path = require("path");
 const { init: initDB, Counter } = require("./db");
+const axios = require("axios");
 
 const router = new Router();
 
 const homePage = fs.readFileSync(path.join(__dirname, "index.html"), "utf-8");
+
+const AppId = "wx874904c38445429a"
+// todo:hide this secret
+const AppSecret = "a9a95c739e05d9212eb9977ab3146082"
 
 // 首页
 router.get("/", async (ctx) => {
@@ -39,13 +44,19 @@ router.get("/api/count", async (ctx) => {
 
   ctx.body = {
     code: 0,
-    data: "ok",
+    data: result,
   };
 });
 
 router.post("/api/login", async (ctx) => {
-  const { code } = ctx.request.body;
-  console.log(body)
+  const { request } = ctx;
+  const { code } = request.body;
+  const result = await axios.get(`https://api.weixin.qq.com/sns/jscode2session?appid=${AppId}&secret=${AppSecret}&js_code=${code}&grant_type=authorization_code`)
+  console.log(result.openid)
+  ctx.body = {
+    code: 0,
+    data: `${result.openid}已登录成功！`
+  }
 })
 
 // 小程序调用，获取微信 Open ID
