@@ -69,7 +69,7 @@ router.post("/api/login", async (ctx) => {
       msg: `${res.data.openid}已登录成功！`,
     }
   }).catch(err=>{
-    console.log('错误')
+    console.log('错误啦')
     console.log(err)
   })
 })
