@@ -53,7 +53,7 @@ router.get("/api/test", async (ctx) => {
     console.log(res)
     ctx.body = {
       code: 0,
-      msg: "success"
+      msg: "success!"
     }
   }).catch(err=>{
     console.log(err)
