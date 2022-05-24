@@ -39,7 +39,7 @@ router.get("/api/count", async (ctx) => {
 
   ctx.body = {
     code: 0,
-    data: result,
+    data: "ok",
   };
 });
 
