@@ -38,53 +38,15 @@ router.get("/", async (ctx) => {
 //   };
 // });
 
-// 获取计数
-// router.get("/api/count", async (ctx) => {
-//   const result = await Counter.count();
-//
-//   ctx.body = {
-//     code: 0,
-//     data: result,
-//   };
-// });
 
-router.get("/api/test", async (ctx) => {
-  axios.get("http://www.lzh0129.top:8081/login").then(res=>{
-    console.log(res)
-    ctx.body = {
-      code: 0,
-      msg: "success!"
-    }
-  }).catch(err=>{
-    console.log(err)
-  })
-});
-
-router.post("/api/login", async (ctx) => {
-  const { request } = ctx;
-  const { code } = request.body;
-
-  console.log(code)
-  axios.get(`https://api.weixin.qq.com/sns/jscode2session?appid=${AppId}&secret=${AppSecret}&js_code=${code}&grant_type=authorization_code`).then(res=>{
-    console.log('成功')
-    console.log(res.data)
-    ctx.body = {
-      code: 0,
-      data: res.data.openid,
-      msg: `${res.data.openid}已登录成功！`,
-    }
-  }).catch(err=>{
-    console.log('错误啦')
-    console.log(err)
-  })
-})
 
 // 小程序调用，获取微信 Open ID
-// router.get("/api/wx_openid", async (ctx) => {
-//   if (ctx.request.headers["x-wx-source"]) {
-//     ctx.body = ctx.request.headers["x-wx-openid"];
-//   }
-// });
+router.get("/api/wx_openid", async (ctx) => {
+  if (ctx.request.headers["x-wx-source"]) {
+    console.log("openid:", ctx.request.headers["x-wx-openid"])
+    ctx.body = ctx.request.headers["x-wx-openid"];
+  }
+});
 
 const app = new Koa();
 app
