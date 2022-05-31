@@ -24,7 +24,7 @@ router.get("/api/login", async (ctx) => {
       }
     })
     if(user===null) {  // 如果是第一次登录则自动注册
-      await User.create({
+      const newUser = await User.create({
         nickname: "微信用户" + nanoid(),
         avatarURL: "https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132",
         wx_openid: openid
@@ -32,7 +32,11 @@ router.get("/api/login", async (ctx) => {
       console.log("用户"+openid+"已注册")
       ctx.body = {
         code: 0,
-        msg: `${openid}已注册并登录成功！`
+        msg: `${openid}已注册并登录成功！`,
+        data: {
+          nickname: newUser.nickname,
+          avatarURL: newUser.avatarURL,
+        }
       };
     }else {
       ctx.body = {
@@ -56,7 +60,10 @@ router.post("/api/intentionsList",async ctx => {
 })
 
 router.post("/api/addJob",async ctx => {
-
+  console.log(ctx.request.body)
+  ctx.body = {
+    msg: '收到请求'
+  }
 })
 
 router.post("/api/addIntention",async ctx => {
