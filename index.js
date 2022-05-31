@@ -4,7 +4,7 @@ const logger = require("koa-logger");
 const bodyParser = require("koa-bodyparser");
 const fs = require("fs");
 const path = require("path");
-const { init: initDB, User } = require("./db");
+const { init: initDB, User,Job } = require("./db");
 const axios = require("axios");
 const {nanoid} = require('nanoid')
 
@@ -52,7 +52,17 @@ router.get("/api/login", async (ctx) => {
 });
 
 router.post("/api/jobsList",async ctx => {
-
+  const {startIndex,endIndex} = ctx.request.body
+  const jobs = await Job.findAll({
+    raw: true
+  })
+  const selectedJobs = jobs.slice(startIndex,endIndex+1)
+  console.log(selectedJobs)
+  ctx.body = {
+    code: 0,
+    msg: `${startIndex}到${startIndex+selectedJobs.length}jobs查询成功`,
+    data: selectedJobs
+  }
 })
 
 router.post("/api/intentionsList",async ctx => {
@@ -60,9 +70,14 @@ router.post("/api/intentionsList",async ctx => {
 })
 
 router.post("/api/addJob",async ctx => {
-  console.log(ctx.request.body)
-  ctx.body = {
-    msg: '收到请求'
+  const jobFormData = ctx.request.body
+  const newJob = await Job.create(jobFormData)
+  if(newJob) {
+    console.log(`职位：${newJob.jobName}添加成功`)
+    ctx.body = {
+      code: 0,
+      msg: `职位${newJob.jobName}添加成功`
+    }
   }
 })
 
