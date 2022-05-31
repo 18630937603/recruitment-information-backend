@@ -54,7 +54,10 @@ router.get("/api/login", async (ctx) => {
 router.post("/api/jobsList",async ctx => {
   const {startIndex,endIndex} = ctx.request.body
   const jobs = await Job.findAll({
-    raw: true
+    raw: true,
+    attributes: {
+      exclude: ['UserId','id','updatedAt']
+    }
   })
   const selectedJobs = jobs.slice(startIndex,endIndex+1)
   console.log(selectedJobs)
