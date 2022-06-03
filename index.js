@@ -56,7 +56,7 @@ router.post("/api/jobsList",async ctx => {
   const jobs = await Job.findAll({
     raw: true,
     attributes: {
-      exclude: ['UserId','id','updatedAt']
+      exclude: ['UserId','updatedAt']
     }
   })
   const selectedJobs = jobs.slice(startIndex,endIndex+1)
