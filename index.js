@@ -79,7 +79,7 @@ router.post("/api/jobDetail", async ctx => {
         raw: true,
         attributes: ['nickname', 'avatarURL']
     })
-    const userId = findIdByOpenId(ctx.request.headers["x-wx-openid"])
+    const userId = await findIdByOpenId(ctx.request.headers["x-wx-openid"])
     const isFavourite = await User_Job_Favourite.findOne({
         where: {
             UserId: userId,
@@ -102,7 +102,7 @@ router.post("/api/intentionsList", async ctx => {
 })
 
 router.post("/api/addJob", async ctx => {
-    const userId = findIdByOpenId(ctx.request.headers["x-wx-openid"])
+    const userId = await findIdByOpenId(ctx.request.headers["x-wx-openid"])
     const jobFormData = ctx.request.body
 
     console.log(jobFormData)
