@@ -28,7 +28,7 @@ router.get("/api/login", async (ctx) => {
             avatarURL: "https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132",
             wx_openid: openid
         })
-        console.log("用户" + openid + "已注册")
+        console.log("用户" + newUser.toJSON() + "已注册")
         ctx.body = {
             code: 0,
             msg: `${openid}已注册并登录成功！`,
@@ -39,6 +39,7 @@ router.get("/api/login", async (ctx) => {
             }
         };
     } else {
+        console.log("用户" + openid + "已登录")
         ctx.body = {
             code: 0,
             msg: `${openid}已登录成功！`,
@@ -88,7 +89,7 @@ router.post("/api/jobDetail", async ctx => {
     })
     ctx.body = {
         code: 0,
-        msg: `User${openid}search job${jobId}详情成功`,
+        msg: `User${userId}search job${jobId}详情成功`,
         data: {
             ...job.toJSON(),
             publisher,
@@ -104,18 +105,13 @@ router.post("/api/intentionsList", async ctx => {
 router.post("/api/addJob", async ctx => {
     const userId = await findIdByOpenId(ctx.request.headers["x-wx-openid"])
     const jobFormData = ctx.request.body
-
-    console.log(jobFormData)
-    const obj = {
+    const newJob = await Job.create({
         ...jobFormData,
         publishedBy: userId
-    }
-    console.log(obj)
-
-    const newJob = await Job.create(obj)
+    })
     ctx.body = {
         code: 0,
-        msg: `职位${newJob.jobName}ByUser${user.id}添加成功`
+        msg: `职位${newJob.jobName}ByUser${userId}添加成功`
     }
 })
 

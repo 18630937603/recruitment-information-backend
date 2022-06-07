@@ -26,8 +26,8 @@ const User = sequelize.define("User", {
 // 工作
 const Job = sequelize.define("Job", {
     jobName: DataTypes.STRING, // 职位名称
-    minSalary: DataTypes.INTEGER, // 最低工资，人民币
-    maxSalary: DataTypes.INTEGER, // 最高工资，人民币
+    minSalary: DataTypes.INTEGER, // 最低月薪，人民币
+    maxSalary: DataTypes.INTEGER, // 最高月薪，人民币
     city: DataTypes.STRING, // 所处城市
     companyName: DataTypes.STRING, // 所属公司名称，必填
     address: DataTypes.STRING, // 工作地详细地址
@@ -40,10 +40,10 @@ const Job = sequelize.define("Job", {
 // 求职意愿
 const Intention = sequelize.define("Intention", {
     preferredJobType: DataTypes.STRING, // 期望的工作类型
-    salaryExpectation: DataTypes.INTEGER,
-    cityExpectation: DataTypes.STRING,
-    description: DataTypes.STRING, // 描述
-    bindResume: DataTypes.BOOLEAN // 是否绑定简历
+    salaryExpectation: DataTypes.INTEGER, // 期望的月薪
+    cityExpectation: DataTypes.STRING, // 期望的工作城市
+    description: DataTypes.STRING, // 个人描述
+    bindResume: DataTypes.BOOLEAN // 是否允许查看该意向的招聘者查看你的简历
 })
 
 // 简历
