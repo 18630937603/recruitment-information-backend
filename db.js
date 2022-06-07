@@ -80,8 +80,14 @@ Job.belongsToMany(User, {
 })
 
 // 一个求职者用户可以发布多个求职意向，求职意向的发布人是唯一的
-User.hasMany(Intention)
-Intention.belongsTo(User)
+User.hasMany(Intention,{
+    foreignKey: "publishedBy",
+    as: "publishedIntentions"
+})
+Intention.belongsTo(User,{
+    foreignKey: "publishedBy",
+    as: "publisher"
+})
 
 // 一个求职者用户可以上传一份简历，简历的发布人是唯一的
 User.hasOne(Resume)
@@ -90,7 +96,7 @@ Resume.belongsTo(User)
 
 // 数据库初始化方法
 async function init() {
-    await sequelize.sync({alter: true})
+    await sequelize.sync({force: true})
     // await sequelize.sync({alter: true})
 }
 

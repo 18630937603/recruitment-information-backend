@@ -102,18 +102,29 @@ router.post("/api/jobDetail", async ctx => {
 router.post("/api/intentionsList", async ctx => {
     const {startIndex, endIndex} = ctx.request.body
     const intentions = await Intention.findAll({
-        raw: true,
         attributes: {
-            exclude: ['publishedBy', 'updatedAt']
+            exclude: ['updatedAt']
         }
     })
     const selectedIntentions = intentions.slice(startIndex, endIndex + 1)
+    let result = []
+    for(let intentionInstance of selectedIntentions) {
+        const user = await intentionInstance.getPublisher({
+            raw: true,
+            attributes: ['nickname', 'avatarURL']
+        })
+        result.push({
+            ...intentionInstance.toJSON(),
+            user
+        })
+    }
+
     ctx.body = {
         code: 0,
-        msg: `${startIndex}到${startIndex + selectedIntentions.length}jobs查询成功`,
-        data: selectedIntentions
+        msg: `${startIndex}到${startIndex + result.length}intentions查询成功`,
+        data: result
     }
-    console.log(`${startIndex}到${startIndex + selectedIntentions.length}jobs查询成功`)
+    console.log(`${startIndex}到${startIndex + result.length}intentions查询成功`)
 })
 
 router.post("/api/addJob", async ctx => {
