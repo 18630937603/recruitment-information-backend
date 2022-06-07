@@ -166,7 +166,7 @@ router.post("/api/favJobsList", async ctx => {
     const favJobs = await user.getFavJob({
         raw: true,
     })
-    console.log('favJobs查询结果----------------')
+    console.log('favJobs查询结果-----------------')
     console.log(favJobs)
     console.log(JSON.stringify(favJobs))
 
