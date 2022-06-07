@@ -4,7 +4,7 @@ const logger = require("koa-logger");
 const bodyParser = require("koa-bodyparser");
 const fs = require("fs");
 const path = require("path");
-const {init: initDB, User, Job, User_Job_Favourite} = require("./db");
+const {init: initDB, User, Job, User_Job_Favourite, Intention} = require("./db");
 const axios = require("axios");
 const {nanoid} = require('nanoid')
 
@@ -24,11 +24,12 @@ router.get("/api/login", async (ctx) => {
     })
     if (user === null) {  // 如果是第一次登录则自动注册
         const newUser = await User.create({
-            nickname: "微信用户" + nanoid(),
+            // nickname: "微信用户" + nanoid(),
+            nickname: "微信用户",
             avatarURL: "https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132",
             wx_openid: openid
         })
-        console.log("用户" + newUser.toJSON() + "已注册")
+        console.log("用户" + JSON.stringify(newUser) + "已注册")
         ctx.body = {
             code: 0,
             msg: `${openid}已注册并登录成功！`,
@@ -61,12 +62,12 @@ router.post("/api/jobsList", async ctx => {
         }
     })
     const selectedJobs = jobs.slice(startIndex, endIndex + 1)
-    // console.log(selectedJobs)
     ctx.body = {
         code: 0,
         msg: `${startIndex}到${startIndex + selectedJobs.length}jobs查询成功`,
         data: selectedJobs
     }
+    console.log(`${startIndex}到${startIndex + selectedJobs.length}jobs查询成功`)
 })
 
 router.post("/api/jobDetail", async ctx => {
@@ -99,7 +100,20 @@ router.post("/api/jobDetail", async ctx => {
 })
 
 router.post("/api/intentionsList", async ctx => {
-
+    const {startIndex, endIndex} = ctx.request.body
+    const intentions = await Intention.findAll({
+        raw: true,
+        attributes: {
+            exclude: ['publishedBy', 'updatedAt']
+        }
+    })
+    const selectedIntentions = intentions.slice(startIndex, endIndex + 1)
+    ctx.body = {
+        code: 0,
+        msg: `${startIndex}到${startIndex + selectedIntentions.length}jobs查询成功`,
+        data: selectedIntentions
+    }
+    console.log(`${startIndex}到${startIndex + selectedIntentions.length}jobs查询成功`)
 })
 
 router.post("/api/addJob", async ctx => {
@@ -111,12 +125,34 @@ router.post("/api/addJob", async ctx => {
     })
     ctx.body = {
         code: 0,
-        msg: `职位${newJob.jobName}ByUser${userId}添加成功`
+        msg: `职位${newJob.jobName}添加成功`
     }
 })
 
 router.post("/api/addIntention", async ctx => {
 
+})
+
+router.post("/api/favourite", async ctx => {
+    const user = await User.findOne({
+        where: {
+            wx_openid: ctx.request.headers["x-wx-openid"]
+        }
+    })
+    const {op,jobId} = ctx.request.body
+    if(op==="add") {
+        await user.addFavJob(+jobId)
+        ctx.body = {
+            code: 0,
+            msg: `用户${user.id}将job${jobId}添加到收藏成功`
+        }
+    }else if(op==="remove") {
+        await user.removeFavJob(+jobId)
+        ctx.body = {
+            code: 0,
+            msg: `用户${user.id}将job${jobId}取消收藏成功`
+        }
+    }
 })
 
 const app = new Koa();

@@ -16,7 +16,6 @@ const sequelize = new Sequelize("nodejs_demo", MYSQL_USERNAME, MYSQL_PASSWORD, {
 const User = sequelize.define("User", {
     nickname: DataTypes.STRING, // 微信昵称
     avatarURL: DataTypes.STRING, // 头像URL
-    // currentType: DataTypes.INTEGER, // 0为求职者，1为招聘者
     wx_openid: {
         type: DataTypes.STRING,
         unique: true
