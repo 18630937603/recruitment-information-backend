@@ -50,7 +50,7 @@ const Resume = sequelize.define("Resume", {
     name: DataTypes.STRING, // 真实姓名
     sex: DataTypes.INTEGER, // 0为男，1为女
     selfIntroduction: DataTypes.STRING, // 自我介绍
-    educationalBackground: DataTypes.STRING, // 学历(本科、硕士等)
+    educationalBackground: DataTypes.STRING, // 学历
     graduatedFrom: DataTypes.STRING, // 毕业院校名称
     portraitURL: DataTypes.STRING, // 个人照片URL
     fileURL: DataTypes.STRING // 附件简历URL

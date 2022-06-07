@@ -10,7 +10,7 @@ const {nanoid} = require('nanoid')
 
 const router = new Router();
 
-const AppId = "wx874904c38445429a"
+const APPID = "wx874904c38445429a"
 
 
 // 登录和自动注册
@@ -118,19 +118,28 @@ router.post("/api/intentionsList", async ctx => {
 
 router.post("/api/addJob", async ctx => {
     const userId = await findIdByOpenId(ctx.request.headers["x-wx-openid"])
-    const jobFormData = ctx.request.body
-    const newJob = await Job.create({
-        ...jobFormData,
+    const formData = ctx.request.body
+    const result = await Job.create({
+        ...formData,
         publishedBy: userId
     })
     ctx.body = {
         code: 0,
-        msg: `职位${newJob.jobName}添加成功`
+        msg: `职位${result.jobName}添加成功`
     }
 })
 
 router.post("/api/addIntention", async ctx => {
-
+    const userId = await findIdByOpenId(ctx.request.headers["x-wx-openid"])
+    const formData = ctx.request.body
+    const result = await Intention.create({
+        ...formData,
+        publishedBy: userId
+    })
+    ctx.body = {
+        code: 0,
+        msg: `意向${result.id}发布成功`
+    }
 })
 
 router.post("/api/favourite", async ctx => {
@@ -194,23 +203,6 @@ async function bootstrap() {
 
 bootstrap();
 
-// 更新计数
-// router.post("/api/count", async (ctx) => {
-//   const { request } = ctx;
-//   const { action } = request.body;
-//   if (action === "inc") {
-//     await Counter.create();
-//   } else if (action === "clear") {
-//     await Counter.destroy({
-//       truncate: true,
-//     });
-//   }
-//
-//   ctx.body = {
-//     code: 0,
-//     data: await Counter.count(),
-//   };
-// });
 
 async function findIdByOpenId(openid) {
     const user = await User.findOne({
