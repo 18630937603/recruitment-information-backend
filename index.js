@@ -155,6 +155,36 @@ router.post("/api/favourite", async ctx => {
     }
 })
 
+router.post("/api/favJobsList", async ctx => {
+    const {startIndex, endIndex} = ctx.request.body
+
+    const user = await User.findOne({
+        where: {
+            wx_openid: ctx.request.headers["x-wx-openid"]
+        }
+    })
+    const favJobs = await user.getFavJob({
+        raw: true,
+    })
+    console.log('favJobs查询结果----------------')
+    console.log(favJobs)
+    console.log(JSON.stringify(favJobs))
+
+    // const jobs = await Job.findAll({
+    //     raw: true,
+    //     attributes: {
+    //         exclude: ['publishedBy', 'updatedAt']
+    //     }
+    // })
+    // const selectedJobs = jobs.slice(startIndex, endIndex + 1)
+    // ctx.body = {
+    //     code: 0,
+    //     msg: `${startIndex}到${startIndex + selectedJobs.length}jobs查询成功`,
+    //     data: selectedJobs
+    // }
+    // console.log(`${startIndex}到${startIndex + selectedJobs.length}jobs查询成功`)
+})
+
 const app = new Koa();
 app
     .use(logger())
