@@ -105,6 +105,7 @@ router.post("/api/addJob", async ctx => {
     const userId = findIdByOpenId(ctx.request.headers["x-wx-openid"])
     const jobFormData = ctx.request.body
 
+    console.log(jobFormData)
     const obj = {
         ...jobFormData,
         publishedBy: userId
