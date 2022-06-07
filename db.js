@@ -57,17 +57,42 @@ const Resume = sequelize.define("Resume", {
     fileURL: DataTypes.STRING // 附件简历URL
 })
 
-User.hasMany(Job)
+// 定义数据模型关联关系
+// 一个招聘者用户可以发布多个职位，职位的发布人是唯一的
+User.hasMany(Job, {
+    foreignKey: "publishedBy",
+    as: "publishedJobs"
+})
+Job.belongsTo(User, {
+    foreignKey: "publishedBy",
+    as: "publisher"
+})
+
+
+const User_Job_Favourite = sequelize.define("User_Job_Favourite")
+// 一个用户可以收藏多个职位，一个职位可以被多个用户收藏
+User.belongsToMany(Job, {
+    through: User_Job_Favourite,
+    as: "favJob"
+})
+Job.belongsToMany(User, {
+    through: User_Job_Favourite,
+    as: 'favUser'
+})
+
+// 一个求职者用户可以发布多个求职意向，求职意向的发布人是唯一的
 User.hasMany(Intention)
-User.hasOne(Resume)
-Job.belongsTo(User)
 Intention.belongsTo(User)
+
+// 一个求职者用户可以上传一份简历，简历的发布人是唯一的
+User.hasOne(Resume)
 Resume.belongsTo(User)
 
 
 // 数据库初始化方法
 async function init() {
-    await sequelize.sync({alter: true})
+    await sequelize.sync({force: true})
+    // await sequelize.sync({alter: true})
 }
 
 // 导出初始化方法和模型
@@ -76,5 +101,6 @@ module.exports = {
     User,
     Job,
     Intention,
-    Resume
+    Resume,
+    User_Job_Favourite
 };

@@ -4,7 +4,7 @@ const logger = require("koa-logger");
 const bodyParser = require("koa-bodyparser");
 const fs = require("fs");
 const path = require("path");
-const {init: initDB, User, Job} = require("./db");
+const {init: initDB, User, Job, User_Job_Favourite} = require("./db");
 const axios = require("axios");
 const {nanoid} = require('nanoid')
 
@@ -16,36 +16,36 @@ const AppId = "wx874904c38445429a"
 // 登录和自动注册
 router.get("/api/login", async (ctx) => {
     // 获取微信 Open ID
-    if (ctx.request.headers["x-wx-source"]) {
-        const openid = ctx.request.headers["x-wx-openid"]
-        const user = await User.findOne({
-            where: {
-                wx_openid: openid
-            }
+    const openid = ctx.request.headers["x-wx-openid"]
+    const user = await User.findOne({
+        where: {
+            wx_openid: openid
+        }
+    })
+    if (user === null) {  // 如果是第一次登录则自动注册
+        const newUser = await User.create({
+            nickname: "微信用户" + nanoid(),
+            avatarURL: "https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132",
+            wx_openid: openid
         })
-        if (user === null) {  // 如果是第一次登录则自动注册
-            const newUser = await User.create({
-                nickname: "微信用户" + nanoid(),
-                avatarURL: "https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132",
-                wx_openid: openid
-            })
-            console.log("用户" + openid + "已注册")
-            ctx.body = {
-                code: 0,
-                msg: `${openid}已注册并登录成功！`,
-                data: {
-                    nickname: newUser.nickname,
-                    avatarURL: newUser.avatarURL,
-                }
-            };
-        } else {
-            ctx.body = {
-                code: 0,
-                msg: `${openid}已登录成功！`,
-                data: {
-                    nickname: user.nickname,
-                    avatarURL: user.avatarURL,
-                }
+        console.log("用户" + openid + "已注册")
+        ctx.body = {
+            code: 0,
+            msg: `${openid}已注册并登录成功！`,
+            data: {
+                id: newUser.id,
+                nickname: newUser.nickname,
+                avatarURL: newUser.avatarURL,
+            }
+        };
+    } else {
+        ctx.body = {
+            code: 0,
+            msg: `${openid}已登录成功！`,
+            data: {
+                id: user.id,
+                nickname: user.nickname,
+                avatarURL: user.avatarURL,
             }
         }
     }
@@ -56,7 +56,7 @@ router.post("/api/jobsList", async ctx => {
     const jobs = await Job.findAll({
         raw: true,
         attributes: {
-            exclude: ['UserId', 'updatedAt']
+            exclude: ['publishedBy', 'updatedAt']
         }
     })
     const selectedJobs = jobs.slice(startIndex, endIndex + 1)
@@ -71,15 +71,29 @@ router.post("/api/jobsList", async ctx => {
 router.post("/api/jobDetail", async ctx => {
     const {jobId} = ctx.request.body
     const job = await Job.findByPk(jobId, {
-        raw: true,
         attributes: {
-            exclude: ['UserId', 'updatedAt']
+            exclude: ['updatedAt']
+        }
+    })
+    const publisher = await job.getPublisher({
+        raw: true,
+        attributes: ['nickname', 'avatarURL']
+    })
+    const userId = findIdByOpenId(ctx.request.headers["x-wx-openid"])
+    const isFavourite = await User_Job_Favourite.findOne({
+        where: {
+            UserId: userId,
+            JobId: job.id
         }
     })
     ctx.body = {
         code: 0,
-        msg: `job${jobId}详情查询成功`,
-        data: job
+        msg: `User${openid}search job${jobId}详情成功`,
+        data: {
+            ...job.toJSON(),
+            publisher,
+            favourite: Boolean(isFavourite)
+        }
     }
 })
 
@@ -88,14 +102,15 @@ router.post("/api/intentionsList", async ctx => {
 })
 
 router.post("/api/addJob", async ctx => {
+    const userId = findIdByOpenId(ctx.request.headers["x-wx-openid"])
     const jobFormData = ctx.request.body
-    const newJob = await Job.create(jobFormData)
-    if (newJob) {
-        console.log(`职位：${newJob.jobName}添加成功`)
-        ctx.body = {
-            code: 0,
-            msg: `职位${newJob.jobName}添加成功`
-        }
+    const newJob = await Job.create({
+        ...jobFormData,
+        publishedBy: userId
+    })
+    ctx.body = {
+        code: 0,
+        msg: `职位${newJob.jobName}ByUser${user.id}添加成功`
     }
 })
 
@@ -139,3 +154,12 @@ bootstrap();
 //   };
 // });
 
+async function findIdByOpenId(openid) {
+    const user = await User.findOne({
+        where: {
+            wx_openid: openid
+        },
+        attributes: ['id']
+    })
+    return user.id
+}
