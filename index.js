@@ -171,7 +171,7 @@ router.post("/api/favJobsList", async ctx => {
     const selectedFavJobs = favJobs.slice(startIndex, endIndex + 1)
     ctx.body = {
         code: 0,
-        msg: `${startIndex}到${startIndex + selectedFavJobs.length}favJobs查询成功`,
+        msg: `${startIndex}到${startIndex + selectedFavJobs.length}favJobs查询成功!`,
         data: selectedFavJobs
     }
 })
