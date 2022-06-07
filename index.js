@@ -104,10 +104,14 @@ router.post("/api/intentionsList", async ctx => {
 router.post("/api/addJob", async ctx => {
     const userId = findIdByOpenId(ctx.request.headers["x-wx-openid"])
     const jobFormData = ctx.request.body
-    const newJob = await Job.create({
+
+    const obj = {
         ...jobFormData,
         publishedBy: userId
-    })
+    }
+    console.log(obj)
+
+    const newJob = await Job.create(obj)
     ctx.body = {
         code: 0,
         msg: `职位${newJob.jobName}ByUser${user.id}添加成功`
