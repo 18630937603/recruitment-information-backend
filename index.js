@@ -123,7 +123,7 @@ router.post("/api/addJob", async ctx => {
     }
 })
 router.post("/api/removeJob",async ctx => {
-    const {jobId} = ctx.response.body
+    const {jobId} = ctx.request.body
     const job = await Job.findByPk(jobId)
     if(job) {
         await job.destroy()
@@ -196,6 +196,22 @@ router.post("/api/addIntention", async ctx => {
     ctx.body = {
         code: 0,
         msg: `意向发布成功`
+    }
+})
+router.post("/api/removeIntention", async ctx => {
+    const {intentionId} = ctx.request.body
+    const intention = await Intention.findByPk(intentionId)
+    if(intention) {
+        await intention.destroy()
+        ctx.body = {
+            err: 0,
+            msg: `intention${intentionId}删除成功！`
+        }
+    }else {
+        ctx.body = {
+            err: 1,
+            msg: `查无此intention！`
+        }
     }
 })
 
