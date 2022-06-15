@@ -13,7 +13,7 @@ const router = new Router();
 const APPID = "wx874904c38445429a"
 
 
-// 登录和自动注册
+
 router.get("/api/login", async (ctx) => {
     // 获取微信 Open ID
     const openid = ctx.request.headers["x-wx-openid"]
@@ -149,7 +149,7 @@ router.post("/api/addIntention", async ctx => {
     })
     ctx.body = {
         code: 0,
-        msg: `意向${result.id}发布成功`
+        msg: `意向发布成功`
     }
 })
 
@@ -193,6 +193,20 @@ router.post("/api/favJobsList", async ctx => {
         code: 0,
         msg: `${startIndex}到${startIndex + selectedFavJobs.length}favJobs查询成功!`,
         data: selectedFavJobs
+    }
+})
+
+router.post("/api/editProfile", async ctx => {
+    const newProfile = ctx.request.body
+    const user = await User.findOne({
+        where: {
+            wx_openid: ctx.request.headers["x-wx-openid"]
+        }
+    })
+    await user.update(newProfile)
+    ctx.body = {
+        code: 0,
+        msg: `${JSON.stringify(newProfile)}已更新User`
     }
 })
 
