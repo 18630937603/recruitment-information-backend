@@ -232,6 +232,7 @@ router.post("/api/publishedIntentionsList", async ctx => {
     }
 })
 
+
 // api about favourite
 router.post("/api/favourite", async ctx => {
     const user = await User.findOne({
