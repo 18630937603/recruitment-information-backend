@@ -213,6 +213,24 @@ router.post("/api/removeIntention", async ctx => {
         }
     }
 })
+router.post("/api/publishedIntentionsList", async ctx => {
+    const user = await User.findOne({
+        where: {
+            wx_openid: ctx.request.headers["x-wx-openid"]
+        }
+    })
+    const publishedIntentions = await user.getPublishedIntentions({
+        raw: true,
+        attributes: {
+            exclude: ['publishedBy', 'updatedAt']
+        }
+    })
+    ctx.body = {
+        code: 0,
+        msg: `发布的求职意向查询成功!`,
+        data: publishedIntentions
+    }
+})
 
 // api about favourite
 router.post("/api/favourite", async ctx => {
