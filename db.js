@@ -33,7 +33,7 @@ const Job = sequelize.define("Job", {
     educationalRequirements: DataTypes.STRING, // 学历要求
     jobRequirements: DataTypes.STRING, // 岗位要求
     jobIntroduction: DataTypes.STRING, // 岗位简介
-    contact: DataTypes.STRING // 联系方式
+    contact: DataTypes.STRING // 联系电话
 })
 
 // 求职意愿
@@ -42,6 +42,7 @@ const Intention = sequelize.define("Intention", {
     salaryExpectation: DataTypes.INTEGER, // 期望的月薪
     cityExpectation: DataTypes.STRING, // 期望的工作城市
     description: DataTypes.STRING, // 个人描述
+    contact: DataTypes.STRING, // 联系电话
     bindResume: DataTypes.BOOLEAN // 是否允许查看该意向的招聘者查看你的简历
 })
 

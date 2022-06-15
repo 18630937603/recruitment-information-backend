@@ -128,12 +128,12 @@ router.post("/api/removeJob",async ctx => {
     if(job) {
         await job.destroy()
         ctx.body = {
-            err: 0,
+            code: 0,
             msg: `job${jobId}删除成功！`
         }
     }else {
         ctx.body = {
-            err: 1,
+            code: 1,
             msg: `查无此job！`
         }
     }
@@ -185,6 +185,26 @@ router.post("/api/intentionsList", async ctx => {
     }
     console.log(`${startIndex}到${startIndex + result.length}intentions查询成功`)
 })
+router.post("/api/intentionDetail", async ctx => {
+    const {intentionId} = ctx.request.body
+    const intention = await Intention.findByPk(intentionId, {
+        attributes: {
+            exclude: ['updatedAt']
+        }
+    })
+    const publisher = await intention.getPublisher({
+        raw: true,
+        attributes: ['nickname', 'avatarURL']
+    })
+    ctx.body = {
+        code: 0,
+        msg: `${intentionId}详情查询成功`,
+        data: {
+            ...intention.toJSON(),
+            publisher,
+        }
+    }
+})
 router.post("/api/addIntention", async ctx => {
     const userId = await findIdByOpenId(ctx.request.headers["x-wx-openid"])
     const formData = ctx.request.body
@@ -203,12 +223,12 @@ router.post("/api/removeIntention", async ctx => {
     if(intention) {
         await intention.destroy()
         ctx.body = {
-            err: 0,
+            code: 0,
             msg: `intention${intentionId}删除成功！`
         }
     }else {
         ctx.body = {
-            err: 1,
+            code: 1,
             msg: `查无此intention！`
         }
     }
@@ -231,7 +251,6 @@ router.post("/api/publishedIntentionsList", async ctx => {
         data: publishedIntentions
     }
 })
-
 
 // api about favourite
 router.post("/api/favourite", async ctx => {
@@ -275,8 +294,6 @@ router.post("/api/favJobsList", async ctx => {
         data: selectedFavJobs
     }
 })
-
-
 
 
 const app = new Koa();
