@@ -96,8 +96,8 @@ Resume.belongsTo(User)
 
 // 数据库初始化方法
 async function init() {
-    await sequelize.sync({force: true})
-    // await sequelize.sync({alter: true})
+    // await sequelize.sync({force: true})
+    await sequelize.sync({alter: true})
 }
 
 // 导出初始化方法和模型

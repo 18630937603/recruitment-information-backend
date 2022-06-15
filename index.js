@@ -12,8 +12,7 @@ const router = new Router();
 
 const APPID = "wx874904c38445429a"
 
-
-
+// api about user
 router.get("/api/login", async (ctx) => {
     // 获取微信 Open ID
     const openid = ctx.request.headers["x-wx-openid"]
@@ -52,7 +51,21 @@ router.get("/api/login", async (ctx) => {
         }
     }
 });
+router.post("/api/editProfile", async ctx => {
+    const newProfile = ctx.request.body
+    const user = await User.findOne({
+        where: {
+            wx_openid: ctx.request.headers["x-wx-openid"]
+        }
+    })
+    await user.update(newProfile)
+    ctx.body = {
+        code: 0,
+        msg: `${JSON.stringify(newProfile)}已更新User`
+    }
+})
 
+// api about jobs
 router.post("/api/jobsList", async ctx => {
     const {startIndex, endIndex} = ctx.request.body
     const jobs = await Job.findAll({
@@ -69,7 +82,6 @@ router.post("/api/jobsList", async ctx => {
     }
     console.log(`${startIndex}到${startIndex + selectedJobs.length}jobs查询成功`)
 })
-
 router.post("/api/jobDetail", async ctx => {
     const {jobId} = ctx.request.body
     const job = await Job.findByPk(jobId, {
@@ -98,7 +110,54 @@ router.post("/api/jobDetail", async ctx => {
         }
     }
 })
+router.post("/api/addJob", async ctx => {
+    const userId = await findIdByOpenId(ctx.request.headers["x-wx-openid"])
+    const formData = ctx.request.body
+    const result = await Job.create({
+        ...formData,
+        publishedBy: userId
+    })
+    ctx.body = {
+        code: 0,
+        msg: `职位${result.jobName}添加成功`
+    }
+})
+router.post("/api/removeJob",async ctx => {
+    const {jobId} = ctx.response.body
+    const job = await Job.findByPk(jobId)
+    if(job) {
+        await job.destroy()
+        ctx.body = {
+            err: 0,
+            msg: `job${jobId}删除成功！`
+        }
+    }else {
+        ctx.body = {
+            err: 1,
+            msg: `查无此job！`
+        }
+    }
+})
+router.post("/api/publishedJobsList", async ctx => {
+    const user = await User.findOne({
+        where: {
+            wx_openid: ctx.request.headers["x-wx-openid"]
+        }
+    })
+    const publishedJobs = await user.getPublishedJobs({
+        raw: true,
+        attributes: {
+            exclude: ['publishedBy', 'updatedAt']
+        }
+    })
+    ctx.body = {
+        code: 0,
+        msg: `发布的工作查询成功!`,
+        data: publishedJobs
+    }
+})
 
+// api about intentions
 router.post("/api/intentionsList", async ctx => {
     const {startIndex, endIndex} = ctx.request.body
     const intentions = await Intention.findAll({
@@ -108,7 +167,7 @@ router.post("/api/intentionsList", async ctx => {
     })
     const selectedIntentions = intentions.slice(startIndex, endIndex + 1)
     let result = []
-    for(let intentionInstance of selectedIntentions) {
+    for (let intentionInstance of selectedIntentions) {
         const user = await intentionInstance.getPublisher({
             raw: true,
             attributes: ['nickname', 'avatarURL']
@@ -126,20 +185,6 @@ router.post("/api/intentionsList", async ctx => {
     }
     console.log(`${startIndex}到${startIndex + result.length}intentions查询成功`)
 })
-
-router.post("/api/addJob", async ctx => {
-    const userId = await findIdByOpenId(ctx.request.headers["x-wx-openid"])
-    const formData = ctx.request.body
-    const result = await Job.create({
-        ...formData,
-        publishedBy: userId
-    })
-    ctx.body = {
-        code: 0,
-        msg: `职位${result.jobName}添加成功`
-    }
-})
-
 router.post("/api/addIntention", async ctx => {
     const userId = await findIdByOpenId(ctx.request.headers["x-wx-openid"])
     const formData = ctx.request.body
@@ -153,20 +198,21 @@ router.post("/api/addIntention", async ctx => {
     }
 })
 
+// api about favourite
 router.post("/api/favourite", async ctx => {
     const user = await User.findOne({
         where: {
             wx_openid: ctx.request.headers["x-wx-openid"]
         }
     })
-    const {op,jobId} = ctx.request.body
-    if(op==="add") {
+    const {op, jobId} = ctx.request.body
+    if (op === "add") {
         await user.addFavJob(+jobId)
         ctx.body = {
             code: 0,
             msg: `用户${user.id}将job${jobId}添加到收藏成功`
         }
-    }else if(op==="remove") {
+    } else if (op === "remove") {
         await user.removeFavJob(+jobId)
         ctx.body = {
             code: 0,
@@ -174,7 +220,6 @@ router.post("/api/favourite", async ctx => {
         }
     }
 })
-
 router.post("/api/favJobsList", async ctx => {
     const {startIndex, endIndex} = ctx.request.body
     const user = await User.findOne({
@@ -196,19 +241,8 @@ router.post("/api/favJobsList", async ctx => {
     }
 })
 
-router.post("/api/editProfile", async ctx => {
-    const newProfile = ctx.request.body
-    const user = await User.findOne({
-        where: {
-            wx_openid: ctx.request.headers["x-wx-openid"]
-        }
-    })
-    await user.update(newProfile)
-    ctx.body = {
-        code: 0,
-        msg: `${JSON.stringify(newProfile)}已更新User`
-    }
-})
+
+
 
 const app = new Koa();
 app
